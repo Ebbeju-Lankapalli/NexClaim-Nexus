@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexClaim - Insurance Claim Pre-Assessment Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/i18n.css">
+    <style>
+        :root {
+            --primary: #7C9A92;
+            --primary-dark: #4F6F64;
+            --primary-light: #DCE8E3;
+            --bg: #F8FAF9;
+            --surface: #FFFFFF;
+            --text: #2C3E36;
+            --text-light: #5B756C;
+            --accent: #D6A85F;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --shadow: 0 8px 32px rgba(124, 154, 146, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background-color: var(--bg);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--primary-dark);
+        }
+
+        /* Utility */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(124, 154, 146, 0.3);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            transition: transform 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Navbar */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 15px 0;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 160px 0 100px;
+            background: linear-gradient(135deg, var(--bg) 0%, var(--primary-light) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: var(--primary);
+            border-radius: 50%;
+            filter: blur(150px);
+            opacity: 0.1;
+            top: -100px;
+            right: -100px;
+            z-index: 0;
+        }
+
+        .hero-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content h1 {
+            font-size: 56px;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+        }
+
+        .hero-content p {
+            font-size: 20px;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            max-width: 500px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .hero-image {
+            position: relative;
+        }
+
+        .hero-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #E8F5E9;
+            color: #2E7D32;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #4CAF50;
+            border-radius: 50%;
+        }
+
+        /* Stats */
+        .modal-body {
+            padding: 20px 0;
+        }
+
+        .stats {
+            padding: 80px 0;
+            background: var(--surface);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .stat-item p {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* Features */
+        .features {
+            padding: 100px 0;
+            background: var(--bg);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .section-header p {
+            font-size: 18px;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .feature-card {
+            text-align: left;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+        }
+
+        .feature-card h3 {
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        /* How it works */
+        .how-it-works {
+            padding: 100px 0;
+            background: var(--surface);
+        }
+
+        .steps-container {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-top: 60px;
+        }
+
+        .steps-container::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary-light);
+            z-index: 0;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            padding: 0 20px;
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            background: var(--surface);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0 auto 20px;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .step h4 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* CTA */
+        .cta {
+            padding: 100px 0;
+            background: var(--primary-dark);
+            text-align: center;
+            color: white;
+        }
+
+        .cta h2 {
+            color: white;
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        .cta p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text);
+            color: white;
+            padding: 60px 0 30px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 50px;
+            margin-bottom: 40px;
+        }
+
+        .footer-logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .footer-links h4 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #A0AAB2;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #A0AAB2;
+            font-size: 14px;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            width: 100%;
+            max-width: 450px;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .modal-header h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn-block {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .error-msg {
+            color: #d32f2f;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .loader {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            animation: rotation 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .hero-content p {
+                margin: 0 auto 40px;
+            }
+            .hero-buttons {
+                justify-content: center;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .steps-container {
+                flex-direction: column;
+                gap: 40px;
+            }
+            .steps-container::before {
+                display: none;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .hero-content h1 {
+                font-size: 40px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    
+        /* Reviews & Partners Styles */
+        .partner-card {
+            filter: grayscale(100%) opacity(0.7);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            padding: 30px 40px;
+        }
+        .partner-card:hover {
+            filter: grayscale(0%) opacity(1);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(74, 124, 89, 0.15);
+        }
+
+        .reviews {
+            padding: 100px 0;
+            background: var(--bg);
+            overflow: hidden;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+        .tab-btn {
+            padding: 15px 30px;
+            background: transparent;
+            border: 2px solid var(--primary-light);
+            color: var(--text-light);
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 10px 20px rgba(74, 124, 89, 0.2);
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .carousel-container {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .carousel-track {
+            display: flex;
+            gap: 30px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            padding: 20px 10px 40px;
+            scrollbar-width: none; /* Firefox */
+        }
+        .carousel-track::-webkit-scrollbar {
+            display: none; /* Chrome */
+        }
+        
+        .review-card {
+            min-width: calc(50% - 15px);
+            scroll-snap-align: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        @media(max-width: 768px) {
+            .review-card { min-width: 100%; }
+        }
+        .review-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-dark);
+            font-weight: bold;
+            font-size: 24px;
+        }
+        .reviewer-info h4 { margin: 0; color: var(--text); font-size: 18px; }
+        .reviewer-info p { margin: 0; color: var(--text-light); font-size: 14px; }
+        .stars { color: #FFD700; font-size: 18px; letter-spacing: 2px; }
+        .review-text { font-size: 16px; color: var(--text); font-style: italic; line-height: 1.6; }
+        
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid #eee;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--primary);
+            transition: all 0.3s;
+        }
+        .carousel-btn:hover { background: var(--primary); color: white; }
+        .prev-btn { left: -25px; }
+        .next-btn { right: -25px; }
+
+        .trust-indicators {
+            padding: 80px 0;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            text-align: center;
+        }
+        .trust-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            margin-top: 50px;
+        }
+        .trust-item h3 { font-size: 48px; margin-bottom: 10px; font-weight: 700; }
+        .trust-item p { font-size: 16px; opacity: 0.9; }
+        @media(max-width: 900px) { .trust-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media(max-width: 500px) { .trust-grid { grid-template-columns: 1fr; } }
+
+    </style>
+
+    <style>
+        .password-rules { font-size: 12px; margin-top: 5px; color: var(--text-light, #666); display: none; }
+        .password-rules.active { display: block; }
+        .rule-item { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; }
+        .rule-icon { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .rule-item.valid { color: #4CAF50; }
+        .pwd-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+        .pwd-toggle { position: absolute; right: 10px; cursor: pointer; color: #888; background: none; border: none; padding: 0; display: flex; align-items: center; justify-content: center; }
+        .pwd-toggle:hover { color: var(--primary, #4A7C59); }
+
+    </style>
+
+
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav>
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                NexClaim
+            </a>
+            <div class="nav-links">
+                <a href="/" data-i18n="nav_home">Home</a>
+                <a href="/partner" data-i18n="nav_partner">Partner With Us</a>
+                <a href="#reviews" data-i18n="nav_reviews">Reviews</a>
+                <a href="/help" data-i18n="nav_help">Help</a>
+                <a href="/contact" data-i18n="nav_contact">Contact</a>
+                
+                <div class="lang-switcher">
+                    <button class="lang-btn" id="currentLangBtn">🌐 EN ▼</button>
+                    <div class="lang-dropdown">
+                        <div class="lang-option" onclick="window.I18N.setLanguage('en'); document.getElementById('currentLangBtn').innerHTML='🇬🇧 EN ▼'">🇬🇧 English</div>
+                        <div class="lang-option" onclick="window.I18N.setLanguage('hi'); document.getElementById('currentLangBtn').innerHTML='🇮🇳 HI ▼'">🇮🇳 हिन्दी</div>
+                        <div class="lang-option" onclick="window.I18N.setLanguage('te'); document.getElementById('currentLangBtn').innerHTML='🇮🇳 TE ▼'">🇮🇳 తెలుగు</div>
+                    </div>
+                </div>
+
+                <button class="theme-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Dark Mode">🌙</button>
+
+                <button class="btn btn-primary" onclick="openLogin()" data-i18n="nav_login">Login</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <h1 data-i18n="hero_title">Intelligent Claim Pre-Assessment</h1>
+                <p data-i18n="hero_subtitle">Experience lightning-fast insurance claim processing powered by advanced AI. Upload documents, get instant validations, and track status in real-time.</p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" onclick="openLogin()" data-i18n="btn_get_started">Get Started</button>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-card">
+                    <div class="status-badge">
+                        <div class="status-dot"></div>
+                        AI Assessment Complete
+                    </div>
+                    <h3>Claim #CLM-2024-892</h3>
+                    <p style="color: var(--text-light); margin: 10px 0 20px;">Patient: Sarah Johnson</p>
+                    <div style="display: flex; justify-content: space-between; border-top: 1px solid #eee; padding-top: 20px;">
+                        <div>
+                            <p style="font-size: 12px; color: var(--text-light);">Confidence Score</p>
+                            <p style="font-weight: 600; color: var(--primary); font-size: 24px;">98%</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="font-size: 12px; color: var(--text-light);">Recommendation</p>
+                            <p style="font-weight: 600; color: #2E7D32;">APPROVE</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <!-- Trusted Partners -->
+    <section class="trusted-partners" style="padding: 80px 0; background: var(--surface); text-align: center;">
+        <div class="container">
+            <h3 style="color: var(--text-light); font-size: 16px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px;" data-i18n="trusted_by">Trusted By Insurance Providers</h3>
+            <p style="color: var(--text-light); max-width: 700px; margin: 0 auto 50px; font-size: 16px;" data-i18n="built_to_support">
+                Built to support modern insurance claim assessment workflows and designed for organizations focused on efficiency, transparency, and better customer experiences.
+            </p>
+            <div style="display: flex; justify-content: center; gap: 40px; align-items: center; flex-wrap: wrap;">
+                <div class="glass-card partner-card">
+                    <h2 style="margin: 0; font-size: 24px; color: #2C3E50;" data-i18n="star_health">⭐ Star Health Insurance</h2>
+                </div>
+                <div class="glass-card partner-card">
+                    <h2 style="margin: 0; font-size: 24px; color: #2C3E50;" data-i18n="suraksha_ins">🛡️ Suraksha Insurance</h2>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats">
+        <div class="container stats-grid">
+            <div class="stat-item">
+                <h3>99.9%</h3>
+                <p data-i18n="stat_ocr">OCR Accuracy</p>
+            </div>
+            <div class="stat-item">
+                <h3>&lt; 2s</h3>
+                <p data-i18n="stat_time">Avg Processing Time</p>
+            </div>
+            <div class="stat-item">
+                <h3>45%</h3>
+                <p data-i18n="stat_reduction">Reduction in Manual Review</p>
+            </div>
+            <div class="stat-item">
+                <h3>24/7</h3>
+                <p data-i18n="stat_247">Real-time Assessment</p>
+            </div>
+        </div>
+    </section>
+
+    
+    <!-- Reviews -->
+    <section id="reviews" class="reviews">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-i18n="trusted_industry">Trusted by the Industry</h2>
+                <p data-i18n="see_how_nexclaim">See how NexClaim is transforming claim processing for insurance providers and policyholders alike.</p>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('partner-reviews', event)" data-i18n="partners_say">What Our Partners Say</button>
+                <button class="tab-btn" onclick="switchTab('user-reviews', event)" data-i18n="users_say">What Our Users Say</button>
+            </div>
+
+            <div id="partner-reviews" class="tab-content active">
+                <div class="carousel-container">
+                    <button class="carousel-btn prev-btn" onclick="scrollCarousel('track-partner', -1)">❮</button>
+                    <div class="carousel-track" id="track-partner">
+                        
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div class="avatar">P</div>
+                                <div class="reviewer-info">
+                                    <h4>Priya Sharma</h4>
+                                    <p>Star Health Insurance • Senior Claims Reviewer</p>
+                                </div>
+                            </div>
+                            <div class="stars">★★★★★</div>
+                            <p class="review-text">"NexClaim has significantly improved the way claim documents are reviewed. The AI-generated recommendations and validation summaries help our reviewers focus on critical cases rather than spending hours manually checking every document."</p>
+                        </div>
+
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div class="avatar">R</div>
+                                <div class="reviewer-info">
+                                    <h4>Rohit Verma</h4>
+                                    <p>Star Health Insurance • Claims Operations Lead</p>
+                                </div>
+                            </div>
+                            <div class="stars">★★★★★</div>
+                            <p class="review-text">"The explainability and risk assessment features are particularly impressive. Instead of receiving generic outputs, reviewers get meaningful insights that support decision-making while maintaining transparency."</p>
+                        </div>
+
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div class="avatar">A</div>
+                                <div class="reviewer-info">
+                                    <h4>Ananya Reddy</h4>
+                                    <p>Suraksha Insurance • Insurance Process Manager</p>
+                                </div>
+                            </div>
+                            <div class="stars">★★★★★</div>
+                            <p class="review-text">"The OCR and extraction workflow reduces manual effort considerably. What stands out most is how quickly reviewers can access the information they need from a single assessment summary."</p>
+                        </div>
+
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div class="avatar">V</div>
+                                <div class="reviewer-info">
+                                    <h4>Vikram Gupta</h4>
+                                    <p>Suraksha Insurance • Claims Quality Analyst</p>
+                                </div>
+                            </div>
+                            <div class="stars">★★★★☆</div>
+                            <p class="review-text">"The platform provides a structured approach to claim assessment and helps improve consistency across reviews. The dashboard experience is clean, professional, and easy to use."</p>
+                        </div>
+
+                    </div>
+                    <button class="carousel-btn next-btn" onclick="scrollCarousel('track-partner', 1)">❯</button>
+                </div>
+            </div>
+
+            <div id="user-reviews" class="tab-content">
+                <div class="carousel-container">
+                    <button class="carousel-btn prev-btn" onclick="scrollCarousel('track-user', -1)">❮</button>
+                    <div class="carousel-track" id="track-user">
+                        
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div class="avatar">R</div>
+                                <div class="reviewer-info">
+                                    <h4>Rahul Kumar</h4>
+                                    <p>Hyderabad • Hospitalization Claim</p>
+                                </div>
+                            </div>
+                            <div class="stars">★★★★★</div>
+                            <p class="review-text">"I was able to track my claim status without repeatedly contacting customer support. The process felt much more transparent compared to traditional claim submission systems."</p>
+                        </div>
+
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div class="avatar">S</div>
+                                <div class="reviewer-info">
+                                    <h4>Sneha Patel</h4>
+                                    <p>Bengaluru • Surgery Claim</p>
+                                </div>
+                            </div>
+                            <div class="stars">★★★★★</div>
+                            <p class="review-text">"The dashboard clearly showed what documents were required and the progress of my claim. Having updates available in one place made the entire experience stress-free."</p>
+                        </div>
+
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div class="avatar">A</div>
+                                <div class="reviewer-info">
+                                    <h4>Arjun Nair</h4>
+                                    <p>Chennai • Medical Reimbursement</p>
+                                </div>
+                            </div>
+                            <div class="stars">★★★★★</div>
+                            <p class="review-text">"I particularly liked how quickly my documents were processed and reviewed. The claim status updates helped me understand exactly where my application stood."</p>
+                        </div>
+
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div class="avatar">M</div>
+                                <div class="reviewer-info">
+                                    <h4>Meghana Rao</h4>
+                                    <p>Vijayawada • Health Insurance Claim</p>
+                                </div>
+                            </div>
+                            <div class="stars">★★★★☆</div>
+                            <p class="review-text">"The interface is easy to understand and the claim tracking feature is extremely useful. It gives confidence that your documents are being reviewed properly."</p>
+                        </div>
+
+                    </div>
+                    <button class="carousel-btn next-btn" onclick="scrollCarousel('track-user', 1)">❯</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Indicators -->
+    <section class="trust-indicators" id="trust-indicators">
+        <div class="container">
+            <h2 data-i18n="why_trust">Why People Trust NexClaim</h2>
+            <div class="trust-grid">
+                <div class="trust-item">
+                    <h3 class="counter" data-target="98">0%</h3>
+                    <p data-i18n="trust_sat">Reviewer Satisfaction</p>
+                </div>
+                <div class="trust-item">
+                    <h3 class="counter" data-target="92">0%</h3>
+                    <p data-i18n="trust_faster">Faster Document Review</p>
+                </div>
+                <div class="trust-item">
+                    <h3 class="counter" data-target="95">0%</h3>
+                    <p data-i18n="trust_acc">Policy Validation Accuracy</p>
+                </div>
+                <div class="trust-item">
+                    <h3 class="counter" data-target="90">0%</h3>
+                    <p data-i18n="trust_effort">Reduction in Manual Effort</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- How it works -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-i18n="seamless_workflow">Seamless Claim Workflow</h2>
+            </div>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h4 data-i18n="wf_submit_title">Submit</h4>
+                    <p data-i18n="wf_submit_desc">Policyholder uploads medical documents and bills securely.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h4 data-i18n="wf_analyze_title">AI Analyze</h4>
+                    <p data-i18n="wf_analyze_desc">System extracts data, validates policy, and scores risk.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h4 data-i18n="wf_review_title">Review</h4>
+                    <p data-i18n="wf_review_desc">Expert reviewers get a comprehensive pre-assessment brief.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h4 data-i18n="wf_decision_title">Decision</h4>
+                    <p data-i18n="wf_decision_desc">Final decision is made and policyholder is notified instantly.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <div class="container">
+            <h2 data-i18n="ready_to_transform">Ready to transform your claim processing?</h2>
+            <p data-i18n="join_thousands">Join thousands of policyholders experiencing the future of health insurance.</p>
+            <button class="btn btn-outline" style="background: white; border-color: white;" onclick="openRegister()" data-i18n="btn_register_policy">Register Your Policy Now</button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        NexClaim
+                    </div>
+                    <p style="color: #A0AAB2; max-width: 300px;" data-i18n="footer_desc">The next generation AI-powered insurance claim pre-assessment platform.</p>
+                </div>
+                <div class="footer-links">
+                    <h4 data-i18n="footer_platform">Platform</h4>
+                    <ul>
+                        <li><a href="#" onclick="openLogin()" data-i18n="footer_ph_portal">Policyholder Portal</a></li>
+                        <li><a href="#" onclick="openLogin()" data-i18n="footer_rev_console">Reviewer Console</a></li>
+                        <li><a href="#" onclick="openLogin()" data-i18n="footer_admin_dash">Admin Dashboard</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4 data-i18n="footer_legal">Legal</h4>
+                    <ul>
+                        <li><a href="#" data-i18n="footer_privacy">Privacy Policy</a></li>
+                        <li><a href="#" data-i18n="footer_terms">Terms of Service</a></li>
+                        <li><a href="#" data-i18n="footer_security">Security</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2024 NexClaim. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModals()">&times;</button>
+            <div class="modal-header">
+                <h2>Welcome Back</h2>
+                <p style="color: var(--text-light)">Login to your NexClaim portal</p>
+            </div>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Select Role</label>
+                    <select id="loginRole" class="form-control" onchange="handleRoleChange()" required>
+                        <option value="policyholder">Policyholder</option>
+                        <option value="reviewer">Reviewer</option>
+                        <option value="admin">Administrator</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="loginEmail" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" class="form-control" required>
+                </div>
+                <div class="form-group" id="captchaGroup" style="display: none; background: var(--bg); padding:15px; border-radius:8px; border:1px solid var(--border);">
+                    <label>Security Verification</label>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                        <span id="captchaQuestion" style="font-weight: bold; font-size: 16px;">Loading...</span>
+                        <input type="hidden" id="captchaExpected">
+                        <button type="button" class="btn btn-outline" style="padding: 4px 8px; font-size: 12px;" onclick="loadCaptcha()">Refresh</button>
+                    </div>
+                    <input type="text" id="captchaAnswer" class="form-control" placeholder="Enter answer">
+                </div>
+                <div id="loginError" class="error-msg">Invalid credentials.</div>
+                <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+                    <span class="btn-text">Login</span>
+                    <div class="loader"></div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- OTP Verification Modal -->
+    <div class="modal-overlay" id="otpModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModals()">&times;</button>
+            <div class="modal-header">
+                <h2>Verify Identity</h2>
+                <p style="color: var(--text-light)">Enter the 6-digit OTP sent to your email.</p>
+            </div>
+            <form id="otpForm" onsubmit="handleLoginOtp(event)">
+                <input type="hidden" id="otpEmail">
+                <div class="form-group">
+                    <label>OTP Code</label>
+                    <input type="text" id="otpCode" class="form-control" placeholder="123456" minlength="6" maxlength="6" required>
+                </div>
+                <div id="otpError" class="error-msg">Invalid or expired OTP.</div>
+                <button type="submit" class="btn btn-primary btn-block" id="otpBtn">
+                    <span class="btn-text">Verify & Login</span>
+                    <div class="loader"></div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Force Password Change Modal -->
+    <div class="modal-overlay" id="forcePasswordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Set Your Password</h2>
+                <p style="color: var(--text-light)">Please set a new password to continue</p>
+            </div>
+            <form id="forcePasswordForm" onsubmit="handleForcePasswordChange(event)">
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" id="newPassword" class="form-control" required minlength="8">
+                    <small style="color: #666; font-size: 12px;">Min 8 chars, 1 uppercase, 1 special char</small>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-control" required minlength="8">
+                </div>
+                <div id="fpwError" class="error-msg">Passwords do not match.</div>
+                <button type="submit" class="btn btn-primary btn-block" id="fpwBtn">
+                    <span class="btn-text">Update Password</span>
+                    <div class="loader"></div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Check auth on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                // Determine redirect based on role
+                fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+                .then(res => {
+                    if (res.ok) return res.json();
+                    throw new Error('Invalid token');
+                })
+                .then(data => {
+                    if(data.role === 'admin') window.location.href = '/admin';
+                    else if(data.role === 'reviewer') window.location.href = '/reviewer';
+                    else window.location.href = '/policyholder';
+                })
+                .catch(() => {
+                    localStorage.removeItem('token');
+                });
+            }
+        });
+
+        
+        // Tabs Logic
+        function switchTab(tabId, e) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            e.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Carousel Logic
+        function scrollCarousel(trackId, direction) {
+            const track = document.getElementById(trackId);
+            const scrollAmount = track.clientWidth / 2;
+            track.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+        }
+
+        // Auto slide carousel slowly
+        setInterval(() => {
+            ['track-partner', 'track-user'].forEach(id => {
+                const track = document.getElementById(id);
+                if(track && track.offsetParent !== null) { // if visible
+                    if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 10) {
+                        track.scrollTo({ left: 0, behavior: 'smooth' });
+                    } else {
+                        track.scrollBy({ left: 300, behavior: 'smooth' });
+                    }
+                }
+            });
+        }, 5000);
+
+        // Animated Counters
+        const counters = document.querySelectorAll('.counter');
+        let animated = false;
+        
+        window.addEventListener('scroll', () => {
+            const trustSection = document.getElementById('trust-indicators');
+            if(!trustSection || animated) return;
+            
+            const rect = trustSection.getBoundingClientRect();
+            if(rect.top < window.innerHeight) {
+                animated = true;
+                counters.forEach(counter => {
+                    const updateCount = () => {
+                        const target = +counter.getAttribute('data-target');
+                        const count = +counter.innerText.replace('%','');
+                        const inc = target / 50;
+                        if(count < target) {
+                            counter.innerText = Math.ceil(count + inc) + '%';
+                            setTimeout(updateCount, 30);
+                        } else {
+                            counter.innerText = target + '%';
+                        }
+                    };
+                    updateCount();
+                });
+            }
+        });
+
+        // Modal Management
+        function openLogin() {
+            closeModals();
+            document.getElementById('loginModal').classList.add('active');
+        }
+
+        function closeModals() {
+            document.getElementById('loginModal').classList.remove('active');
+            document.getElementById('otpModal').classList.remove('active');
+            document.getElementById('forcePasswordModal').classList.remove('active');
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('otpError').style.display = 'none';
+            document.getElementById('fpwError').style.display = 'none';
+        }
+
+        // Close on click outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                closeModals();
+            }
+        }
+
+        // CAPTCHA
+        async function loadCaptcha() {
+            try {
+                const res = await fetch('/api/auth/captcha');
+                const data = await res.json();
+                document.getElementById('captchaQuestion').textContent = data.question;
+                document.getElementById('captchaExpected').value = data.answer;
+            } catch (err) {
+                console.error('Failed to load CAPTCHA');
+            }
+        }
+
+        function handleRoleChange() {
+            const role = document.getElementById('loginRole').value;
+            const captchaGroup = document.getElementById('captchaGroup');
+            if (role === 'reviewer') {
+                captchaGroup.style.display = 'block';
+                document.getElementById('captchaAnswer').required = true;
+                loadCaptcha();
+            } else {
+                captchaGroup.style.display = 'none';
+                document.getElementById('captchaAnswer').required = false;
+            }
+        }
+
+        function setLoading(btnId, isLoading) {
+            const btn = document.getElementById(btnId);
+            const text = btn.querySelector('.btn-text');
+            const loader = btn.querySelector('.loader');
+            
+            if (isLoading) {
+                btn.disabled = true;
+                text.style.display = 'none';
+                loader.style.display = 'block';
+            } else {
+                btn.disabled = false;
+                text.style.display = 'inline';
+                loader.style.display = 'none';
+            }
+        }
+
+        // Login Handler
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const role = document.getElementById('loginRole').value;
+            const captcha_answer = document.getElementById('captchaAnswer').value;
+            const captcha_expected = document.getElementById('captchaExpected').value;
+            
+            const errorEl = document.getElementById('loginError');
+            
+            setLoading('loginBtn', true);
+            errorEl.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, role, captcha_answer, captcha_expected })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    if (data.require_otp) {
+                        document.getElementById('loginModal').classList.remove('active');
+                        document.getElementById('otpEmail').value = data.email;
+                        document.getElementById('otpModal').classList.add('active');
+                        return;
+                    }
+                    localStorage.setItem('token', data.access_token);
+                    if (data.first_login) {
+                        closeModals();
+                        document.getElementById('forcePasswordModal').classList.add('active');
+                        return;
+                    }
+                    if(data.role === 'admin') window.location.href = '/admin';
+                    else if(data.role === 'reviewer') window.location.href = '/reviewer';
+                    else window.location.href = '/policyholder';
+                } else {
+                    let errorMsg = 'Login failed';
+                    if (Array.isArray(data.detail)) {
+                        errorMsg = data.detail[0].msg;
+                    } else if (data.detail) {
+                        errorMsg = data.detail;
+                    }
+                    errorEl.textContent = errorMsg;
+                    errorEl.style.display = 'block';
+                }
+            } catch (err) {
+                errorEl.textContent = 'Network error occurred';
+                errorEl.style.display = 'block';
+            } finally {
+                setLoading('loginBtn', false);
+            }
+        }
+
+        async function handleLoginOtp(e) {
+            e.preventDefault();
+            const email = document.getElementById('otpEmail').value;
+            const otp_code = document.getElementById('otpCode').value;
+            const errorEl = document.getElementById('otpError');
+            
+            setLoading('otpBtn', true);
+            errorEl.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/auth/login/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp_code })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    localStorage.setItem('token', data.access_token);
+                    if (data.first_login) {
+                        closeModals();
+                        document.getElementById('forcePasswordModal').classList.add('active');
+                        return;
+                    }
+                    if(data.role === 'admin') window.location.href = '/admin';
+                    else if(data.role === 'reviewer') window.location.href = '/reviewer';
+                    else window.location.href = '/policyholder';
+                } else {
+                    errorEl.textContent = data.detail || 'Invalid OTP';
+                    errorEl.style.display = 'block';
+                }
+            } catch (err) {
+                errorEl.textContent = 'Network error occurred';
+                errorEl.style.display = 'block';
+            } finally {
+                setLoading('otpBtn', false);
+            }
+        }
+
+        async function handleForcePasswordChange(e) {
+            e.preventDefault();
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorEl = document.getElementById('fpwError');
+            
+            if (newPassword !== confirmPassword) {
+                errorEl.textContent = "Passwords do not match.";
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            setLoading('fpwBtn', true);
+            errorEl.style.display = 'none';
+            
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch('/api/auth/first-login-change-password', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ new_password: newPassword })
+                });
+
+                if (res.ok) {
+                    // Check auth again
+                    const authRes = await fetch('/api/auth/me', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const data = await authRes.json();
+                    
+                    if(data.role === 'admin') window.location.href = '/admin';
+                    else if(data.role === 'reviewer') window.location.href = '/reviewer';
+                    else window.location.href = '/policyholder';
+                } else {
+                    const data = await res.json();
+                    let errorMsg = 'Password update failed';
+                    if (Array.isArray(data.detail)) errorMsg = data.detail.map(e => e.msg).join(', ');
+                    else if (data.detail) errorMsg = data.detail;
+                    errorEl.textContent = errorMsg;
+                    errorEl.style.display = 'block';
+                }
+            } catch (err) {
+                errorEl.textContent = 'Network error. Please try again.';
+                errorEl.style.display = 'block';
+            } finally {
+                setLoading('fpwBtn', false);
+            }
+        }
+    </script>
+
+    <script>
+        function createPasswordRulesHTML(id) {
+            return `
+                <div id="${id}" class="password-rules">
+                    <div class="rule-item rule-length"><span class="icon"><svg class="rule-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span> 8+ characters</div>
+                    <div class="rule-item rule-upper"><span class="icon"><svg class="rule-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span> 1 uppercase letter</div>
+                    <div class="rule-item rule-lower"><span class="icon"><svg class="rule-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span> 1 lowercase letter</div>
+                    <div class="rule-item rule-number"><span class="icon"><svg class="rule-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span> 1 number</div>
+                    <div class="rule-item rule-special"><span class="icon"><svg class="rule-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span> 1 special char (@$!%*?&_-#)</div>
+                </div>
+            `;
+        }
+
+        function attachPasswordValidator(inputId, rulesContainerId, showRules = true) {
+            const input = document.getElementById(inputId);
+            if(!input) return;
+
+            // Add wrapper and toggle eye
+            const wrapper = document.createElement('div');
+            wrapper.className = 'pwd-wrapper';
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+
+            const toggleBtn = document.createElement('button');
+            toggleBtn.type = 'button';
+            toggleBtn.className = 'pwd-toggle';
+            toggleBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+            
+            toggleBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if(input.type === 'password') {
+                    input.type = 'text';
+                    toggleBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+                } else {
+                    input.type = 'password';
+                    toggleBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+                }
+            });
+            wrapper.appendChild(toggleBtn);
+
+            if(!showRules) return; // Only toggle eye
+
+            // Add rules container
+            if (rulesContainerId && !document.getElementById(rulesContainerId)) {
+                wrapper.insertAdjacentHTML('afterend', createPasswordRulesHTML(rulesContainerId));
+            }
+            const container = document.getElementById(rulesContainerId);
+            if(!container) return;
+
+            const rules = {
+                length: { regex: /.{8,}/, el: container.querySelector('.rule-length') },
+                upper: { regex: /[A-Z]/, el: container.querySelector('.rule-upper') },
+                lower: { regex: /[a-z]/, el: container.querySelector('.rule-lower') },
+                number: { regex: /[0-9]/, el: container.querySelector('.rule-number') },
+                special: { regex: /[@$!%*?&_\-#]/, el: container.querySelector('.rule-special') }
+            };
+
+            const checkIcon = `<svg class="rule-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+            const crossIcon = `<svg class="rule-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+
+            input.addEventListener('focus', () => {
+                container.classList.add('active');
+            });
+
+            input.addEventListener('input', () => {
+                const val = input.value;
+                // Optional logic: hide rules if empty and not required, but keep simple
+                for (const [key, rule] of Object.entries(rules)) {
+                    if(!rule.el) continue;
+                    const iconSpan = rule.el.querySelector('.icon');
+                    if (rule.regex.test(val)) {
+                        rule.el.classList.add('valid');
+                        if(iconSpan) iconSpan.innerHTML = checkIcon;
+                    } else {
+                        rule.el.classList.remove('valid');
+                        if(iconSpan) iconSpan.innerHTML = crossIcon;
+                    }
+                }
+            });
+        }
+    </script>
+
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            attachPasswordValidator('loginPassword', null, false);
+            attachPasswordValidator('newPassword', 'newPasswordRules', true);
+            attachPasswordValidator('confirmPassword', 'confirmPasswordRules', true);
+        });
+</script>
+    <script src="/static/i18n.js"></script>
+    <script>
+        // Set initial button label
+        window.addEventListener('DOMContentLoaded', () => {
+            const lang = localStorage.getItem('nexclaim_lang') || 'en';
+            if (lang === 'hi') document.getElementById('currentLangBtn').innerHTML='🇮🇳 HI ▼';
+            else if (lang === 'te') document.getElementById('currentLangBtn').innerHTML='🇮🇳 TE ▼';
+            else document.getElementById('currentLangBtn').innerHTML='🇬🇧 EN ▼';
+        });
+    </script>
+</body>
+</html>

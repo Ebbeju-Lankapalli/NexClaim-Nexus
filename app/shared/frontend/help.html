@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help & FAQs | NexClaim</title>
+    <link rel="stylesheet" href="/static/i18n.css">
+    <style>
+        :root {
+            --primary: #4A7C59;
+            --primary-light: #C8D5B9;
+            --primary-dark: #3A6347;
+            --secondary: #F3F7F0;
+            --text: #2C3E50;
+            --text-light: #596E79;
+            --bg: #FAFCFA;
+            --white: #FFFFFF;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.4);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+        
+        nav { background: var(--glass-bg); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--glass-border); box-shadow: 0 4px 30px rgba(0,0,0,0.03); }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; max-width: 1200px; margin: 0 auto;}
+        .logo { font-size: 24px; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .nav-links { display: flex; gap: 30px; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--primary); }
+        .btn { padding: 12px 28px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; text-decoration: none; transition: all 0.3s; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(124, 154, 146, 0.3); }
+
+        .page-header { padding: 80px 0 40px; text-align: center; }
+        .page-header h1 { font-size: 48px; color: var(--primary-dark); margin-bottom: 20px; }
+        .page-header p { font-size: 18px; color: var(--text-light); }
+
+        .faq-section { padding: 40px 0 80px; }
+        .faq-item { background: var(--surface); border-radius: 12px; margin-bottom: 20px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); transition: transform 0.3s ease; border: 1px solid #eee; }
+        .faq-item:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(74, 124, 89, 0.1); }
+        .faq-item h3 { font-size: 20px; color: var(--primary-dark); margin-bottom: 15px; }
+        .faq-item p, .faq-item ul { color: var(--text-light); font-size: 16px; margin-left: 20px; }
+        .faq-item ul { margin-top: 10px; }
+
+        .support-card { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border-radius: 20px; padding: 50px; text-align: center; margin-bottom: 80px; box-shadow: 0 20px 40px rgba(74, 124, 89, 0.2); }
+        .support-card h2 { font-size: 32px; margin-bottom: 20px; }
+        .support-card p { font-size: 18px; opacity: 0.9; margin-bottom: 10px; }
+        .support-card .icon { font-size: 48px; margin-bottom: 20px; }
+        .support-btn { background: var(--surface); color: var(--primary-dark); display: inline-block; margin-top: 30px; }
+        .support-btn:hover { background: var(--secondary); color: var(--primary-dark); }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                NexClaim
+            </a>
+            <div class="nav-links">
+                <a href="/" data-i18n="nav_home">Home</a>
+                <a href="/partner" data-i18n="nav_partner">Partner With Us</a>
+                <a href="/#reviews" data-i18n="nav_reviews">Reviews</a>
+                <a href="/help" style="color: var(--primary);" data-i18n="nav_help">Help</a>
+                <a href="/contact" data-i18n="nav_contact">Contact</a>
+                
+                <div class="lang-switcher">
+                    <button class="lang-btn" id="currentLangBtn">🌐 EN ▼</button>
+                    <div class="lang-dropdown">
+                        <div class="lang-option" onclick="window.I18N.setLanguage('en')">🇬🇧 English</div>
+                        <div class="lang-option" onclick="window.I18N.setLanguage('hi')">🇮🇳 हिन्दी</div>
+                        <div class="lang-option" onclick="window.I18N.setLanguage('te')">🇮🇳 తెలుగు</div>
+                    </div>
+                </div>
+
+                <button class="theme-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Dark Mode">🌙</button>
+
+                <a href="/" class="btn btn-primary" data-i18n="nav_login">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container page-header">
+        <h1 data-i18n="help_title">Frequently Asked Questions</h1>
+        <p data-i18n="help_desc">Find answers to common questions about using NexClaim.</p>
+    </div>
+
+    <div class="container faq-section">
+        
+        <div class="faq-item">
+            <h3 data-i18n="faq_q1">Q1. What is NexClaim?</h3>
+            <p data-i18n="faq_a1">NexClaim is an AI-powered Insurance Claim Pre-Assessment Platform that helps process healthcare insurance claims using OCR, AI validation, risk assessment, and explainable recommendations.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3 data-i18n="faq_q2">Q2. How do I submit a claim?</h3>
+            <p data-i18n="faq_a2">Login to your Policyholder account, navigate to Submit Claim, upload the required documents, and click Process Claim.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3 data-i18n="faq_q3">Q3. What documents are required?</h3>
+            <p><strong data-i18n="faq_a3_mandatory">Mandatory documents:</strong></p>
+            <ul>
+                <li data-i18n="doc_claim_form">Claim Form</li>
+                <li data-i18n="doc_hospital_bill">Hospital Bill</li>
+                <li data-i18n="doc_discharge">Discharge Summary</li>
+                <li data-i18n="doc_receipt">Payment Receipt</li>
+            </ul>
+            <p style="margin-top:15px;"><strong data-i18n="faq_a3_optional">Optional documents:</strong></p>
+            <ul>
+                <li data-i18n="doc_prescription">Prescription</li>
+                <li data-i18n="doc_diagnostic">Diagnostic Reports</li>
+                <li data-i18n="doc_accident">Accident Report</li>
+            </ul>
+        </div>
+
+        <div class="faq-item">
+            <h3 data-i18n="faq_q4">Q4. How can I track my claim?</h3>
+            <p data-i18n="faq_a4">You can track claim status from your dashboard under My Claims.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3 data-i18n="faq_q5">Q5. What does Escalated mean?</h3>
+            <p data-i18n="faq_a5">Escalated means the claim requires additional review by an Admin due to risk factors, missing information, or validation concerns.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3 data-i18n="faq_q6">Q6. How secure is my information?</h3>
+            <p data-i18n="faq_a6">All documents and claim information are securely processed and access is restricted based on user roles.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3 data-i18n="faq_q7">Q7. Who makes the final decision?</h3>
+            <p data-i18n="faq_a7">AI provides recommendations, but final decisions are made by human reviewers and administrators.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3 data-i18n="faq_q8">Q8. What should I do if I forget my password?</h3>
+            <p data-i18n="faq_a8">Use the Forgot Password option on the login page to reset your password securely.</p>
+        </div>
+
+    </div>
+
+    <div class="container">
+        <div class="support-card">
+            <div class="icon">✉️</div>
+            <h2 data-i18n="need_more_help">Need More Help?</h2>
+            <p><span data-i18n="contact_email">Email: customercare@nexclaim.com</span></p>
+            <p data-i18n="contact_hours">Support Hours: Monday – Friday | 9:00 AM – 6:00 PM</p>
+            <p data-i18n="contact_response">Response Time: Within 24 Business Hours</p>
+            <a href="/contact" class="btn btn-primary support-btn" data-i18n="btn_contact_support">Contact Support</a>
+        </div>
+    </div>
+    <script src="/static/i18n.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const lang = localStorage.getItem('nexclaim_lang') || 'en';
+            if (lang === 'hi') document.getElementById('currentLangBtn').innerHTML='🇮🇳 HI ▼';
+            else if (lang === 'te') document.getElementById('currentLangBtn').innerHTML='🇮🇳 TE ▼';
+            else document.getElementById('currentLangBtn').innerHTML='🇬🇧 EN ▼';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+"""
+Document Types and Classifications.
+"""
+from enum import Enum
+
+class DocumentClass(str, Enum):
+    POLICY_DOCUMENT = "POLICY_DOCUMENT"
+    CLAIM_FORM = "CLAIM_FORM"
+    HOSPITAL_BILL = "HOSPITAL_BILL"
+    DISCHARGE_SUMMARY = "DISCHARGE_SUMMARY"
+    PRESCRIPTION = "PRESCRIPTION"
+    MEDICAL_REPORT = "MEDICAL_REPORT"
+    LAB_REPORT = "LAB_REPORT"
+    UNKNOWN = "UNKNOWN"

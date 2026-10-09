@@ -1,0 +1,40 @@
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+
+# Git and local tooling
+.git/
+.github/
+.venv/
+.venv-*/
+venv/
+env/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+.DS_Store
+.vscode/
+.idea/
+
+# Local databases and logs
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.log
+logs/
+
+# User uploads and private claim/policy documents
+app/uploads/claims/
+app/uploads/medical_documents/
+app/uploads/policies/
+app/uploads/policy_repository/
+
+# Coverage/build output
+htmlcov/
+.coverage*
+coverage.xml
+dist/
+build/

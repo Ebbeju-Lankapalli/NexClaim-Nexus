@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviewer Dashboard - NexClaim</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/i18n.css">
+    <style>
+        :root {
+            --primary: #7C9A92;
+            --primary-dark: #4F6F64;
+            --primary-light: #DCE8E3;
+            --bg: #F8FAF9;
+            --surface: #FFFFFF;
+            --text: #2C3E36;
+            --text-light: #5B756C;
+            --accent: #D6A85F;
+            --border: #E0E0E0;
+            --shadow: 0 8px 32px rgba(124, 154, 146, 0.15);
+            
+            --risk-low: #4CAF50;
+            --risk-medium: #FF9800;
+            --risk-high: #F44336;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            z-index: 10;
+        }
+
+        .logo {
+            padding: 0 20px 20px;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .logo-sub { font-size: 12px; color: var(--text-light); font-weight: 500; font-family: 'Inter', sans-serif;}
+
+        .nav-item {
+            padding: 12px 20px;
+            margin: 4px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .nav-item svg { width: 20px; height: 20px; }
+
+        .user-profile {
+            margin-top: auto;
+            padding: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            height: 70px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .view-section { display: none; animation: fadeIn 0.3s ease; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .stat-card h4 { color: var(--text-light); font-size: 14px; margin-bottom: 10px; }
+        .stat-card .value { font-size: 28px; font-weight: 700; color: var(--primary-dark); }
+
+        /* Tables */
+        .card-table {
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: #FAFAFA; font-weight: 600; color: var(--text-light); font-size: 13px; text-transform: uppercase; }
+        tbody tr:hover { background: #FAFAFA; cursor: pointer; }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-risk-LOW { background: #E8F5E9; color: #2E7D32; }
+        .badge-risk-MEDIUM { background: #FFF3E0; color: #E65100; }
+        .badge-risk-HIGH { background: #FFEBEE; color: #C62828; }
+
+        .badge-rec-APPROVE { background: #4CAF50; color: white; }
+        .badge-rec-REJECT { background: #F44336; color: white; }
+        .badge-rec-ESCALATE { background: #FF9800; color: white; }
+
+        .conf-bar-bg {
+            width: 100px;
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        .conf-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        /* Review Panel */
+        .review-panel {
+            position: absolute;
+            top: 0; right: 0; bottom: 0; width: 100%;
+            background: var(--bg);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .review-panel.active { transform: translateX(0); }
+
+        .rp-header {
+            height: 70px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            gap: 20px;
+        }
+
+        .rp-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .rp-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        /* ── AI Pre-Assessment Brief Component ── */
+        .ai-brief-wrap {
+            background: var(--bg);
+            border: 1px solid #DCE6D6;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-top: 0;
+            animation: briefFadeIn 0.4s ease;
+        }
+        @keyframes briefFadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+        /* Decision Banner */
+        .ai-decision-banner {
+            padding: 22px 28px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .ai-decision-icon { font-size: 32px; line-height: 1; }
+        .ai-decision-label { font-size: 20px; font-weight: 700; font-family: 'Poppins', sans-serif; letter-spacing: -0.3px; }
+        .ai-decision-sub { font-size: 13px; margin-top: 3px; opacity: 0.8; }
+        .ai-decision-pills { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+        .ai-pill {
+            padding: 6px 16px; border-radius: 50px; font-size: 12px; font-weight: 700;
+            display: flex; align-items: center; gap: 6px; letter-spacing: .3px;
+        }
+        .ai-pill-conf { background: rgba(255,255,255,0.35); color: inherit; border: 1px solid rgba(255,255,255,0.5); }
+        .ai-pill-risk { background: rgba(0,0,0,0.08); color: inherit; }
+
+        /* Section containers */
+        .ai-section { padding: 20px 28px; border-top: 1px solid #DCE6D6; }
+        .ai-section-title {
+            font-size: 11px; font-weight: 700; letter-spacing: 1px;
+            text-transform: uppercase; color: #7C9A6D; margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .ai-section-title::after { content:''; flex:1; height:1px; background:#DCE6D6; }
+
+        /* Claim Overview cards */
+        .ai-overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 10px; }
+        .ai-info-card {
+            background: var(--surface); border: 1px solid #DCE6D6; border-radius: 12px;
+            padding: 12px 14px; transition: box-shadow 0.2s;
+        }
+        .ai-info-card:hover { box-shadow: 0 4px 16px rgba(124,154,109,0.15); }
+        .ai-info-card .ai-ic-label { font-size: 10px; font-weight: 700; color: #7C9A6D; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+        .ai-info-card .ai-ic-value { font-size: 14px; font-weight: 600; color: #2C3E36; line-height: 1.3; }
+
+        /* Validation metrics */
+        .ai-val-metrics { display: flex; gap: 12px; flex-wrap: wrap; }
+        .ai-val-chip {
+            flex: 1; min-width: 80px; padding: 12px 16px; border-radius: 12px;
+            text-align: center; font-weight: 700;
+        }
+        .ai-val-chip .avc-num { font-size: 26px; display: block; line-height: 1; }
+        .ai-val-chip .avc-lbl { font-size: 11px; margin-top: 4px; display: block; opacity: 0.85; }
+        .avc-pass { background: #F0FDF4; color: #15803D; border: 1px solid #BBF7D0; }
+        .avc-warn { background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; }
+        .avc-fail { background: #FFF1F2; color: #BE123C; border: 1px solid #FECDD3; }
+
+        /* Validation rule list */
+        .ai-val-rule {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 8px 12px; border-radius: 8px; margin-bottom: 6px;
+            font-size: 13px; transition: background 0.15s;
+        }
+        .ai-val-rule:hover { background: var(--surface); }
+        .ai-val-rule .avr-icon { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+        .ai-val-rule .avr-rule { font-weight: 600; color: #2C3E36; }
+        .ai-val-rule .avr-reason { font-size: 11px; color: #5B756C; margin-top: 2px; }
+
+        /* Positive findings */
+        .ai-positive-item {
+            display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+            border-radius: 8px; font-size: 13px; color: #15803D;
+            background: rgba(240,253,244,0.6); margin-bottom: 6px;
+        }
+
+        /* Negative / warning chips */
+        .ai-neg-chip {
+            border-radius: 12px; border: 1px solid #FECDD3;
+            background: var(--surface); margin-bottom: 10px; overflow: hidden;
+        }
+        .ai-neg-chip-header {
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 14px; cursor: pointer;
+            font-size: 13px; font-weight: 600; color: #BE123C;
+            transition: background 0.15s;
+        }
+        .ai-neg-chip-header:hover { background: #FFF1F2; }
+        .ai-neg-chip-body { display: none; padding: 0 14px 12px; font-size: 12px; color: #5B756C; border-top: 1px solid #FECDD3; padding-top: 10px; }
+        .ai-neg-chip-body.open { display: block; }
+        .ai-neg-chip-toggle { margin-left: auto; font-size: 11px; color: #BE123C; font-weight: 400; }
+
+        /* Risk card */
+        .ai-risk-card {
+            border-radius: 14px; padding: 18px 20px;
+            display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;
+        }
+        .ai-risk-level-badge {
+            padding: 10px 20px; border-radius: 10px; font-size: 20px;
+            font-weight: 800; font-family: 'Poppins',sans-serif; letter-spacing: -0.5px;
+            text-align: center; min-width: 90px;
+        }
+        .ai-risk-details { flex: 1; }
+        .ai-risk-score-bar { height: 8px; border-radius: 4px; background: #eee; margin: 8px 0; overflow: hidden; }
+        .ai-risk-score-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+        .ai-risk-factor { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #5B756C; margin-top: 5px; }
+        .ai-risk-factor::before { content:'•'; color: #EF4444; font-size: 16px; }
+
+        /* Confidence bars */
+        .ai-conf-row { margin-bottom: 12px; }
+        .ai-conf-row-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: #2C3E36; margin-bottom: 5px; }
+        .ai-conf-bar-bg { height: 8px; background: #E8EDE6; border-radius: 4px; overflow: hidden; }
+        .ai-conf-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #7C9A6D, #5E7A5A); transition: width 1s ease; }
+
+        /* Action suggestions */
+        .ai-suggestion-item {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 10px 14px; border-radius: 10px;
+            background: var(--surface); border: 1px solid #DCE6D6;
+            margin-bottom: 8px; font-size: 13px; color: #2C3E36;
+            transition: box-shadow 0.2s;
+        }
+        .ai-suggestion-item:hover { box-shadow: 0 4px 12px rgba(124,154,109,0.12); }
+        .ai-sug-num {
+            width: 22px; height: 22px; border-radius: 50%; background: #7C9A6D;
+            color: white; font-size: 11px; font-weight: 700; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Source docs */
+        .ai-doc-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 12px; border-radius: 8px; margin-bottom: 6px;
+            background: var(--surface); border: 1px solid #DCE6D6;
+            font-size: 13px; font-weight: 500; color: #2C3E36;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .ai-doc-item:hover { border-color: #7C9A6D; background: var(--bg); }
+        .ai-doc-badge { padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; margin-left: auto; }
+
+
+        .decision-footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px; border-radius: 8px; border: none; font-family: inherit; font-weight: 500; cursor: pointer; transition: 0.2s;
+        }
+        .btn-approve { background: #4CAF50; color: white; }
+        .btn-reject { background: #F44336; color: white; }
+        .btn-escalate { background: #FF9800; color: white; }
+        
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; }
+
+        .validation-item {
+            display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                NexClaim
+            </div>
+            <div class="logo-sub">Reviewer Portal</div>
+        </div>
+        
+        <div class="nav-item active" onclick="switchTab('dashboard')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            Dashboard
+        </div>
+        <div class="nav-item" onclick="switchTab('queue')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Review Queue
+        </div>
+        <div class="nav-item" onclick="switchTab('completed')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            Completed Claims
+        </div>
+
+        <div class="user-profile">
+            <div style="font-weight: 500; font-size: 14px;" id="userName">Loading...</div>
+            <div style="font-size: 12px; color: var(--text-light);" id="userRole">Reviewer</div>
+            <button class="btn" style="width: 100%; margin-top: 15px; background: #f0f0f0;" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main-content">
+        <div class="header" style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 id="pageTitle">Dashboard</h2>
+            <div class="header-actions" style="display:flex; gap:10px; align-items:center;">
+                <button class="theme-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Dark Mode">🌙</button>
+            </div>
+        </div>
+
+        <div class="content-area">
+            
+            <!-- Dashboard View -->
+            <div id="dashboardView" class="view-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>Pending Review</h4>
+                        <div class="value" id="statPending" style="color:var(--primary)">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Reviewed by Me</h4>
+                        <div class="value" id="statMine">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Escalated</h4>
+                        <div class="value" id="statEscalated" style="color:#FF9800">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Total Claims</h4>
+                        <div class="value" id="statTotal">0</div>
+                    </div>
+                </div>
+
+                <div class="card-table">
+                    <div class="card-header">
+                        <h3>Priority Queue (Needs Review)</h3>
+                        <button class="btn" style="background:#f0f0f0;" onclick="switchTab('queue')">View All</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Claim ID</th>
+                                <th>Patient</th>
+                                <th>Diagnosis</th>
+                                <th>Risk Level</th>
+                                <th>AI Recommendation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashQueueBody">
+                            <tr><td colspan="5" style="text-align:center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Queue View -->
+            <div id="queueView" class="view-section">
+                <div class="card-table">
+                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+                        <h3 style="margin:0;">Priority Review Queue</h3>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <select id="queueStatus" class="form-control" style="width:150px;" onchange="filterQueue()">
+                                <option value="ALL">All Active</option>
+                                <option value="UNDER_REVIEW">Under Review</option>
+                                <option value="ESCALATED">Escalated</option>
+                            </select>
+                            <input type="text" id="queueSearch" class="form-control" style="width:200px;" placeholder="Search Patient or ID..." onkeyup="filterQueue()">
+                            <select id="queueSort" class="form-control" style="width:auto;" onchange="filterQueue()">
+                                <option value="date_asc">Oldest First</option>
+                                <option value="date_desc">Newest First</option>
+                                <option value="risk_desc">Risk (High to Low)</option>
+                                <option value="risk_asc">Risk (Low to High)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Date</th>
+                                <th>Patient</th>
+                                <th>Amount</th>
+                                <th>Risk Level</th>
+                                <th>AI Recommendation</th>
+                                <th>Confidence</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fullQueueBody">
+                            <tr><td colspan="7" style="text-align:center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Completed Claims View -->
+            <div id="completedView" class="view-section">
+                <div class="card-table">
+                    <div class="card-header" style="display: flex; gap: 10px; align-items: center; justify-content: space-between;">
+                        <h3>Completed Claims</h3>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <select id="completedStatus" class="form-control" style="width: 150px; padding: 8px;" onchange="filterCompleted()">
+                                <option value="ALL">All Completed</option>
+                                <option value="APPROVED">Approved</option>
+                                <option value="REJECTED">Rejected</option>
+                            </select>
+                            <input type="text" id="completedSearch" placeholder="Search claims..." class="form-control" style="width: 250px; padding: 8px;" onkeyup="filterCompleted()">
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Claim ID</th>
+                                <th>Date</th>
+                                <th>Patient</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="completedBody">
+                            <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Review Panel (Overlay) -->
+        <div class="review-panel" id="reviewPanel">
+            <div class="rp-header">
+                <button class="btn" style="background:#f0f0f0;" onclick="closeReview()">← Back</button>
+                <h2 id="rpTitle">Reviewing Claim #...</h2>
+            </div>
+            
+            <div class="rp-content" id="rpContent">
+                <div style="text-align:center; grid-column: 1 / -1;">Loading...</div>
+            </div>
+
+            <div class="decision-footer">
+                <div style="flex:1;">
+                    <input type="text" id="reviewComments" class="form-control" placeholder="Add comments/reasoning (Required for Reject/Escalate)" />
+                </div>
+                <button class="btn btn-approve" onclick="submitDecision('APPROVED')">✅ Approve</button>
+                <button class="btn btn-reject" onclick="submitDecision('REJECTED')">❌ Reject</button>
+                <button class="btn btn-escalate" onclick="submitDecision('ESCALATED')">⚠️ Escalate to Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('token');
+        let currentClaimId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!token) { window.location.href = '/'; return; }
+            await loadProfile();
+            await loadDashboard();
+        });
+
+        async function apiCall(endpoint, options = {}) {
+            if (!options.headers) options.headers = {};
+            options.headers['Content-Type'] = 'application/json';
+            options.headers['Authorization'] = `Bearer ${token}`;
+
+            const res = await fetch(endpoint, options);
+            if ((res.status === 401 || res.status === 403) && (!options.method || options.method === 'GET')) {
+                localStorage.removeItem('token');
+                window.location.href = '/';
+                return;
+            }
+            if (!res.ok) {
+                const err = await res.json().catch(()=>({detail:'API Error'}));
+                if (res.status === 422 && err.detail && Array.isArray(err.detail)) {
+                    const msgs = err.detail.map(e => e.msg).join(', ');
+                    throw new Error(msgs);
+                }
+                throw new Error(err.detail || `Error ${res.status}`);
+            }
+            return res.json();
+        }
+
+        async function viewDocument(url) {
+            try {
+                const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!res.ok) throw new Error('Could not load document');
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                window.open(blobUrl, '_blank');
+            } catch(err) {
+                alert('Failed to open document: ' + err.message);
+            }
+        }
+
+        async function loadProfile() {
+            try {
+                const me = await apiCall('/api/auth/me');
+                document.getElementById('userName').textContent = me.full_name;
+            } catch (err) { console.error(err); }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            
+            const indexMap = {'dashboard': 0, 'queue': 1, 'completed': 2};
+            if(indexMap[tab] !== undefined) document.querySelectorAll('.nav-item')[indexMap[tab]].classList.add('active');
+            
+            if(tab === 'dashboard') {
+                document.getElementById('pageTitle').textContent = 'Dashboard';
+                document.getElementById('dashboardView').classList.add('active');
+                loadDashboard();
+            } else if(tab === 'queue') {
+                document.getElementById('pageTitle').textContent = 'Review Queue';
+                document.getElementById('queueView').classList.add('active');
+                loadQueue();
+            } else if(tab === 'completed') {
+                document.getElementById('pageTitle').textContent = 'Completed Claims';
+                document.getElementById('completedView').classList.add('active');
+                loadCompleted();
+            }
+        }
+
+        function formatCurrency(amt) {
+            return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amt || 0);
+        }
+
+        async function loadDashboard() {
+            try {
+                const data = await apiCall('/api/reviewer/dashboard');
+                document.getElementById('statPending').textContent = data.pending_claims;
+                document.getElementById('statMine').textContent = data.reviewed_by_me;
+                document.getElementById('statEscalated').textContent = data.escalated_claims;
+                document.getElementById('statTotal').textContent = data.total_claims;
+
+                loadQueueTable('dashQueueBody', true);
+            } catch(err) { console.error(err); }
+        }
+
+        let fullQueueData = [];
+        let fullCompletedData = [];
+
+        async function loadQueue() {
+            try {
+                // Fetch all claims since we need to filter them client-side into Queue vs Completed
+                const data = await apiCall('/api/reviewer/claims?status_filter=all&limit=1000');
+                const activeStatuses = ['SUBMITTED', 'AI_PROCESSING', 'UNDER_REVIEW', 'ESCALATED'];
+                fullQueueData = data.items.filter(c => activeStatuses.includes(c.status)) || [];
+                filterQueue();
+            } catch(err) { console.error(err); }
+        }
+
+        function filterQueue() {
+            const searchStr = document.getElementById('queueSearch').value.toLowerCase();
+            const sortBy = document.getElementById('queueSort').value;
+            const statusFilter = document.getElementById('queueStatus').value;
+
+            let filtered = fullQueueData.filter(c => {
+                const matchSearch = (c.extracted_patient_name && c.extracted_patient_name.toLowerCase().includes(searchStr)) || 
+                                    (c.id.toString().includes(searchStr));
+                const matchStatus = statusFilter === 'ALL' || c.status === statusFilter;
+                return matchSearch && matchStatus;
+            });
+
+            const riskVal = { 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1, 'UNKNOWN': 0 };
+
+            filtered.sort((a, b) => {
+                if (sortBy === 'date_desc') return new Date(b.created_at) - new Date(a.created_at);
+                if (sortBy === 'date_asc') return new Date(a.created_at) - new Date(b.created_at);
+                if (sortBy === 'risk_desc') return riskVal[b.risk_level||'UNKNOWN'] - riskVal[a.risk_level||'UNKNOWN'];
+                if (sortBy === 'risk_asc') return riskVal[a.risk_level||'UNKNOWN'] - riskVal[b.risk_level||'UNKNOWN'];
+                return 0;
+            });
+
+            loadQueueTable('fullQueueBody', false, filtered);
+        }
+
+        async function loadCompleted() {
+            try {
+                const data = await apiCall('/api/reviewer/claims?status_filter=all&limit=1000');
+                const completedStatuses = ['APPROVED', 'REJECTED', 'FINAL_APPROVED', 'FINAL_REJECTED'];
+                fullCompletedData = data.items.filter(c => completedStatuses.includes(c.status)) || [];
+                filterCompleted();
+            } catch(err) { console.error(err); }
+        }
+
+        function filterCompleted() {
+            const searchStr = document.getElementById('completedSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('completedStatus').value;
+
+            let filtered = fullCompletedData.filter(c => {
+                const matchSearch = (c.extracted_patient_name && c.extracted_patient_name.toLowerCase().includes(searchStr)) || 
+                                    (c.id.toString().includes(searchStr));
+                const matchStatus = statusFilter === 'ALL' || c.status.includes(statusFilter);
+                return matchSearch && matchStatus;
+            });
+
+            filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)); // oldest first
+            
+            const tbody = document.getElementById('completedBody');
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999">No completed claims found.</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map(c => `
+                <tr onclick="openReview(${c.id})">
+                    <td><strong>#${c.id}</strong></td>
+                    <td>${new Date(c.created_at).toLocaleDateString()}</td>
+                    <td>${c.extracted_patient_name || '-'}</td>
+                    <td>${formatCurrency(c.claim_amount)}</td>
+                    <td><span class="badge" style="background:#eee">${c.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadQueueTable(bodyId, isDash, providedData = null) {
+            try {
+                let items = providedData;
+                if (!items) {
+                    const limit = isDash ? 5 : 50;
+                    const data = await apiCall(`/api/reviewer/claims?status_filter=UNDER_REVIEW&limit=${limit}`);
+                    items = data.items || [];
+                }
+                const tbody = document.getElementById(bodyId);
+                
+                if (items.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="${isDash?5:7}" style="text-align:center;color:#999">No pending claims in queue.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = items.map(c => `
+                    <tr onclick="openReview(${c.id})">
+                        <td><strong>#${c.id}</strong></td>
+                        ${!isDash ? `<td>${new Date(c.created_at).toLocaleDateString()}</td>` : ''}
+                        <td>${c.extracted_patient_name || '-'}</td>
+                        ${!isDash ? `<td>${formatCurrency(c.claim_amount)}</td>` : ''}
+                        ${isDash ? `<td>${c.diagnosis || '-'}</td>` : ''}
+                        <td><span class="badge badge-risk-${c.risk_level || 'MEDIUM'}">${c.risk_level || 'UNKNOWN'} RISK</span></td>
+                        <td>
+                            <span class="badge badge-rec-${c.recommendation}">${c.recommendation}</span>
+                            ${!isDash ? `
+                                <div class="conf-bar-bg">
+                                    <div class="conf-bar-fill" style="width:${Math.round((c.confidence_score||0)>1 ? c.confidence_score : (c.confidence_score||0)*100)}%"></div>
+                                </div>
+                                <div class="conf-text">${Math.round((c.confidence_score||0)>1 ? c.confidence_score : (c.confidence_score||0)*100)}%</div>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch(err) { console.error(err); }
+        }
+
+        function renderAIBrief(claim) {
+            if (!claim.brief_data) {
+                return '<div style="padding:20px;color:#999;text-align:center;">&#9203; AI Pre-Assessment pending or not yet generated.</div>';
+            }
+            var bd = claim.brief_data;
+            var exec = bd.executive_summary || {};
+            var expl = bd.explainability || {};
+            var suggestions = Array.isArray(bd.reviewer_action_suggestions) ? bd.reviewer_action_suggestions : [];
+            var positives = Array.isArray(expl.positive_findings) ? expl.positive_findings : [];
+            var negatives = Array.isArray(expl.negative_findings) ? expl.negative_findings : [];
+            var co = bd.claim_overview || {};
+            var missing = Array.isArray(bd.missing_information) ? bd.missing_information : [];
+            var valResults = Array.isArray(bd.validation_results) ? bd.validation_results : [];
+            var riskData = bd.risk_assessment || {};
+            var allDocs = Array.isArray(claim.documents) ? claim.documents : [];
+
+            var rawConf = exec.confidence_score || 0;
+            if (typeof rawConf === 'string') rawConf = parseFloat(rawConf.replace('%', ''));
+            var confPct = isNaN(rawConf) ? 0 : Math.min(100, Math.round(rawConf > 1 ? rawConf : rawConf * 100));
+            var confDisplay = confPct > 0 ? confPct + '%' : 'Unavailable';
+
+            if (co.patient_name) co.patient_name = co.patient_name.replace(/Address Door No/ig, '').trim();
+            if (claim.extracted_patient_name) claim.extracted_patient_name = claim.extracted_patient_name.replace(/Address Door No/ig, '').trim();
+
+            var riskScore = parseFloat(riskData.probability || 0);
+            var riskCat = ((exec.risk_category || riskData.category || 'UNKNOWN') + '').toUpperCase();
+            var rec = exec.recommendation || '';
+            var isApprove = rec === 'APPROVE_RECOMMENDATION';
+            var isReject  = rec === 'REJECT_RECOMMENDATION';
+            var bannerBg   = isApprove ? 'linear-gradient(135deg,#22C55E,#16A34A)' : isReject ? 'linear-gradient(135deg,#EF4444,#DC2626)' : 'linear-gradient(135deg,#F59E0B,#D97706)';
+            var bannerIcon = isApprove ? '&#9989;' : isReject ? '&#10060;' : '&#9888;';
+            var bannerLabel= isApprove ? 'APPROVE RECOMMENDATION' : isReject ? 'REJECT RECOMMENDATION' : 'ESCALATE FOR REVIEW';
+            var riskBg     = riskCat === 'HIGH' ? '#FFF1F2' : riskCat === 'LOW' ? '#F0FDF4' : '#FFFBEB';
+            var riskColor  = riskCat === 'HIGH' ? '#BE123C' : riskCat === 'LOW' ? '#15803D' : '#B45309';
+            var riskBarClr = riskCat === 'HIGH' ? '#EF4444' : riskCat === 'LOW' ? '#22C55E' : '#F59E0B';
+
+            var passCount = 0, warnCount = 0, failCount = 0;
+            valResults.forEach(function(v) {
+                if (v.status === 'PASS') passCount++;
+                else if (v.status === 'WARNING') warnCount++;
+                else failCount++;
+            });
+
+            function fmtKey(k) { return k.replace(/_/g, ' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); }); }
+
+            var rightHtml = '';
+            var leftHtml = '';
+            
+            rightHtml += '<div class="ai-brief-wrap">';
+            leftHtml += '<div class="ai-brief-wrap">';
+
+            // S1 Decision Banner
+            rightHtml += '<div class="ai-decision-banner" style="background:' + bannerBg + '">';
+            rightHtml += '<div class="ai-decision-icon">' + bannerIcon + '</div>';
+            rightHtml += '<div style="color:#fff"><div class="ai-decision-label">' + bannerLabel + '</div><div class="ai-decision-sub">AI-generated pre-assessment result</div></div>';
+            rightHtml += '<div class="ai-decision-pills">';
+            rightHtml += '<div class="ai-pill ai-pill-conf" style="color:#fff">&#127919; Confidence&nbsp;' + confDisplay + '</div>';
+            rightHtml += '<div class="ai-pill ai-pill-risk" style="color:#fff">&#9889; ' + riskCat + ' RISK</div>';
+            rightHtml += '</div></div>';
+
+            // S2 Claim Overview
+            rightHtml += '<div class="ai-section"><div class="ai-section-title">&#128203; Claim Overview</div><div class="ai-overview-grid">';
+            if (co.patient_name)  rightHtml += '<div class="ai-info-card"><div class="ai-ic-label">Patient Name</div><div class="ai-ic-value">' + co.patient_name + '</div></div>';
+            if (co.diagnosis)     rightHtml += '<div class="ai-info-card"><div class="ai-ic-label">Diagnosis</div><div class="ai-ic-value">' + co.diagnosis + '</div></div>';
+            if (co.hospital_name) rightHtml += '<div class="ai-info-card"><div class="ai-ic-label">Hospital</div><div class="ai-ic-value">' + co.hospital_name + '</div></div>';
+            if (co.claim_amount)  rightHtml += '<div class="ai-info-card"><div class="ai-ic-label">Claim Amount</div><div class="ai-ic-value" style="color:#7C9A6D">' + formatCurrency(co.claim_amount) + '</div></div>';
+            if (claim.extracted_policy_number) rightHtml += '<div class="ai-info-card"><div class="ai-ic-label">Policy No.</div><div class="ai-ic-value">' + claim.extracted_policy_number + '</div></div>';
+            if (claim.admission_date) rightHtml += '<div class="ai-info-card"><div class="ai-ic-label">Admission</div><div class="ai-ic-value">' + claim.admission_date.split('T')[0] + '</div></div>';
+            if (claim.discharge_date) rightHtml += '<div class="ai-info-card"><div class="ai-ic-label">Discharge</div><div class="ai-ic-value">' + claim.discharge_date.split('T')[0] + '</div></div>';
+            rightHtml += '</div></div>';
+
+            // S3 Validation Summary
+            if (valResults.length) {
+                rightHtml += '<div class="ai-section"><div class="ai-section-title">&#128737; Validation Summary</div><div class="ai-val-metrics">';
+                rightHtml += '<div class="ai-val-chip avc-pass"><span class="avc-num">' + passCount + '</span><span class="avc-lbl">&#10003; Passed</span></div>';
+                rightHtml += '<div class="ai-val-chip avc-warn"><span class="avc-num">' + warnCount + '</span><span class="avc-lbl">&#9888; Warnings</span></div>';
+                rightHtml += '<div class="ai-val-chip avc-fail"><span class="avc-num">' + failCount + '</span><span class="avc-lbl">&#10007; Failed</span></div>';
+                rightHtml += '</div></div>';
+            }
+
+            // S4 Positive Findings
+            if (positives.length) {
+                rightHtml += '<div class="ai-section"><div class="ai-section-title">&#9989; Positive Findings</div>';
+                positives.forEach(function(p) {
+                    rightHtml += '<div class="ai-positive-item"><span style="font-size:16px">&#10003;</span><span>' + p + '</span></div>';
+                });
+                rightHtml += '</div>';
+            }
+
+            // S5 Negative Findings — use data-toggle for expand, no inline JS
+            if (negatives.length) {
+                rightHtml += '<div class="ai-section"><div class="ai-section-title">&#10060; Negative Findings &amp; Warnings</div>';
+                negatives.forEach(function(n) {
+                    rightHtml += '<div class="ai-neg-chip">';
+                    rightHtml += '<div class="ai-neg-chip-header" data-toggle="neg-body">';
+                    rightHtml += '<span style="font-size:15px">&#9888;</span><span>' + n + '</span>';
+                    rightHtml += '<span class="ai-neg-chip-toggle">&#9660; Details</span></div>';
+                    rightHtml += '<div class="ai-neg-chip-body"><div style="color:#5B756C;line-height:1.6">Detected inconsistency or rule violation impacting claim confidence and risk score. Manual verification recommended.</div></div>';
+                    rightHtml += '</div>';
+                });
+                rightHtml += '</div>';
+            }
+
+            // S6 Risk Assessment
+            leftHtml += '<div class="ai-section"><div class="ai-section-title">&#9889; Risk Assessment</div>';
+            leftHtml += '<div class="ai-risk-card" style="background:' + riskBg + '">';
+            leftHtml += '<div class="ai-risk-level-badge" style="background:' + riskColor + '20;color:' + riskColor + '">' + riskCat;
+            leftHtml += '<div style="font-size:13px;font-weight:500;margin-top:4px">' + Math.round(riskScore * 100) + '% score</div></div>';
+            leftHtml += '<div class="ai-risk-details" style="flex:1"><div style="font-size:12px;font-weight:600;color:#5B756C;margin-bottom:6px">RISK SCORE INDICATOR</div>';
+            leftHtml += '<div class="ai-risk-score-bar"><div class="ai-risk-score-fill" style="width:' + Math.round(riskScore * 100) + '%;background:' + riskBarClr + '"></div></div>';
+            var rfs = riskData.risk_factors || [];
+            if (rfs.length) { rfs.forEach(function(f) { leftHtml += '<div class="ai-risk-factor">' + f + '</div>'; }); }
+            else { leftHtml += '<div class="ai-risk-factor">No specific risk factors flagged</div>'; }
+            leftHtml += '</div></div></div>';
+
+            // S7 Explainability — use data-toggle for accordion
+            var reasons = Array.isArray(exec.primary_reasons) ? exec.primary_reasons : [];
+            if (reasons.length) {
+                leftHtml += '<div class="ai-section"><div class="ai-section-title">&#128269; Explainability Panel</div>';
+                reasons.forEach(function(r, i) {
+                    leftHtml += '<div style="border:1px solid #DCE6D6;border-radius:10px;margin-bottom:8px;overflow:hidden">';
+                    leftHtml += '<div class="ai-expl-hdr" data-toggle="expl-body" style="padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:600;color:#2C3E36;background:var(--surface)">';
+                    leftHtml += '<span>&#128204; Reason ' + (i + 1) + ': ' + r + '</span><span style="font-size:11px;color:#7C9A6D">&#9660;</span></div>';
+                    leftHtml += '<div class="ai-expl-body" style="display:none;padding:10px 14px;font-size:12px;color:#5B756C;line-height:1.7;border-top:1px solid #DCE6D6">This finding contributed to the final recommendation. Please verify manually against uploaded documents and policy terms before making your decision.</div>';
+                    leftHtml += '</div>';
+                });
+                leftHtml += '</div>';
+            }
+
+            // S8 Reviewer Suggestions
+            if (suggestions.length) {
+                leftHtml += '<div class="ai-section"><div class="ai-section-title">&#128161; Reviewer Action Suggestions</div>';
+                suggestions.forEach(function(s, i) {
+                    leftHtml += '<div class="ai-suggestion-item"><div class="ai-sug-num">' + (i + 1) + '</div><div>' + s + '</div></div>';
+                });
+                if (missing.length) {
+                    leftHtml += '<div class="ai-suggestion-item" style="border-color:#FDE68A;background:#FFFBEB"><div class="ai-sug-num" style="background:#F59E0B">!</div><div><strong>Missing:</strong> ' + missing.map(fmtKey).join(', ') + '</div></div>';
+                }
+                leftHtml += '</div>';
+            }
+
+            // S10 Source Documents — use data-doc-url, no inline onclick
+            if (allDocs.length) {
+                leftHtml += '<div class="ai-section"><div class="ai-section-title">&#128206; Source Documents</div>';
+                allDocs.forEach(function(d) {
+                    var url = '/api/reviewer/claims/' + claim.id + '/documents/' + d.id + '/view';
+                    leftHtml += '<div class="ai-doc-item" data-doc-url="' + url + '">';
+                    leftHtml += '<span style="font-size:16px">&#128196;</span>';
+                    leftHtml += '<div><div style="font-weight:600">' + d.doc_type.replace(/_/g, ' ') + '</div><div style="font-size:11px;color:#5B756C">' + d.original_filename + '</div></div>';
+                    leftHtml += '<span class="ai-doc-badge" style="background:#F0FDF4;color:#15803D">&#10003; Used</span>';
+                    leftHtml += '</div>';
+                });
+                leftHtml += '</div>';
+            }
+
+            rightHtml += '</div>'; // end ai-brief-wrap
+            leftHtml += '</div>'; // end ai-brief-wrap
+            
+            return { left: leftHtml, right: rightHtml };
+        }
+
+        // Event delegation for AI brief interactive elements
+        document.addEventListener('click', function(e) {
+            // Negative findings toggle
+            var negHdr = e.target.closest('[data-toggle="neg-body"]');
+            if (negHdr) {
+                var body = negHdr.nextElementSibling;
+                if (body) {
+                    body.classList.toggle('open');
+                    var tog = negHdr.querySelector('.ai-neg-chip-toggle');
+                    if (tog) tog.innerHTML = body.classList.contains('open') ? '&#9650; Hide' : '&#9660; Details';
+                }
+            }
+            // Explainability accordion toggle
+            var explHdr = e.target.closest('[data-toggle="expl-body"]');
+            if (explHdr) {
+                var explBody = explHdr.nextElementSibling;
+                if (explBody) explBody.style.display = explBody.style.display === 'none' ? '' : 'none';
+            }
+            // Source document viewer
+            var docItem = e.target.closest('[data-doc-url]');
+            if (docItem) viewDocument(docItem.getAttribute('data-doc-url'));
+        });
+
+        async function openReview(id) {
+            currentClaimId = id;
+            document.getElementById('rpTitle').textContent = 'Reviewing Claim #' + id;
+            document.getElementById('reviewComments').value = '';
+            document.getElementById('reviewPanel').classList.add('active');
+
+            try {
+                var claim = await apiCall('/api/reviewer/claims/' + id);
+                var aiBriefHtml = renderAIBrief(claim);
+
+                // Build validation HTML
+                var valHtml = '<span style="color:#999">Validation data missing</span>';
+                if (claim.validation && Array.isArray(claim.validation) && claim.validation.length) {
+                    valHtml = '';
+                    claim.validation.forEach(function(vr) {
+                        var statusColor = vr.status === 'PASS' ? '#4CAF50' : vr.status === 'WARNING' ? '#FF9800' : '#F44336';
+                        var statusLabel = vr.status === 'PASS' ? '&#10003; PASS' : vr.status === 'WARNING' ? '&#9888; WARN' : '&#10007; FAIL';
+                        var ruleName = vr.rule.replace(/_/g, ' ').toUpperCase();
+                        valHtml += '<div class="validation-item" style="margin-bottom:8px;flex-wrap:wrap;">';
+                        valHtml += '<div style="display:flex;justify-content:space-between;width:100%;">';
+                        valHtml += '<span style="font-weight:600;font-size:12px;">' + ruleName + '</span>';
+                        valHtml += '<span style="font-size:12px;font-weight:600;color:' + statusColor + '">' + statusLabel + '</span>';
+                        valHtml += '</div>';
+                        valHtml += '<div style="font-size:11px;color:#666;width:100%;margin-top:2px;">' + (vr.reason || '') + '</div>';
+                        valHtml += '</div>';
+                    });
+                }
+
+                // Build documents HTML
+                var docsHtml = '';
+                if (claim.documents && claim.documents.length) {
+                    claim.documents.forEach(function(d) {
+                        var onclick = "viewDocument('/api/reviewer/claims/" + claim.id + "/documents/" + d.id + "/view')";
+                        docsHtml += '<li><button onclick="' + onclick + '" style="background:none;border:none;cursor:pointer;color:var(--primary);font-size:14px;font-weight:500;padding:0;">&#128196; ' + d.doc_type + ' (' + d.original_filename + ')</button></li>';
+                    });
+                } else {
+                    docsHtml = '<li style="list-style:none;color:#999">No documents attached.</li>';
+                }
+
+                // Build rec header
+                var rec = (claim.recommendation && claim.recommendation.recommendation) || '';
+                var recBorderColor = rec === 'APPROVE_RECOMMENDATION' ? '#22C55E' : rec === 'REJECT_RECOMMENDATION' ? '#EF4444' : '#F59E0B';
+                var recTextColor = rec === 'APPROVE_RECOMMENDATION' ? '#15803D' : rec === 'REJECT_RECOMMENDATION' ? '#BE123C' : '#B45309';
+                var recLabel = rec.replace(/_/g, ' ') || 'PENDING';
+                
+                var rawConf = claim.recommendation ? (claim.recommendation.confidence_score || 0) : 0;
+                var confScore = Math.min(100, Math.round(rawConf > 1 ? rawConf : rawConf * 100));
+
+                var html = '';
+                // Left column
+                html += '<div class="left-col">';
+                html += '<div class="rp-card">';
+                html += '<h3>Claim Information</h3>';
+                html += '<table style="width:100%;margin-top:15px;font-size:14px;">';
+                html += '<tr><td style="color:#666">Patient Name</td><td><strong>' + (claim.extracted_patient_name || '-') + '</strong></td></tr>';
+                html += '<tr><td style="color:#666">Diagnosis</td><td>' + (claim.diagnosis || '-') + '</td></tr>';
+                html += '<tr><td style="color:#666">Hospital</td><td>' + (claim.hospital_name || '-') + '</td></tr>';
+                var admDate = claim.admission_date ? claim.admission_date.split('T')[0] : '';
+                var disDate = claim.discharge_date ? claim.discharge_date.split('T')[0] : '';
+                html += '<tr><td style="color:#666">Dates</td><td>' + admDate + ' to ' + disDate + '</td></tr>';
+                html += '<tr><td style="color:#666">Amount</td><td><strong style="color:var(--primary);font-size:18px;">' + formatCurrency(claim.claim_amount) + '</strong></td></tr>';
+                html += '</table></div>';
+                html += '<div class="rp-card"><h3>Uploaded Documents</h3><ul style="margin-top:15px;padding-left:20px;font-size:14px;line-height:1.8;">' + docsHtml + '</ul></div>';
+                
+                if (aiBriefHtml && aiBriefHtml.right) {
+                    html += '<div class="rp-card" style="padding:0;overflow:hidden;border:none;background:transparent;box-shadow:none;margin-top:16px;">';
+                    html += '<h4 style="margin-bottom:12px;font-size:15px;font-family:Poppins,sans-serif;">AI Pre-Assessment Brief</h4>';
+                    html += aiBriefHtml.right;
+                    html += '</div>';
+                }
+
+                html += '</div>';
+
+                // Right column
+                html += '<div class="right-col">';
+                html += '<div class="rp-card" style="padding:0;overflow:hidden;border:none;background:transparent;box-shadow:none;">';
+
+                // Rec header card
+                html += '<div class="rp-card" style="margin-bottom:16px;border:2px solid ' + recBorderColor + '">';
+                html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+                html += '<div><div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:.5px;">AI Recommendation</div>';
+                html += '<div style="font-size:17px;font-weight:700;margin-top:3px;color:' + recTextColor + '">' + recLabel + '</div></div>';
+                html += '<div style="text-align:right;"><div style="font-size:11px;color:#666;">Confidence</div>';
+                html += '<div style="font-size:22px;font-weight:700;color:#2C3E36;">' + confScore + '%</div></div>';
+                html += '</div></div>';
+
+                // Calculate Confidence Breakdown metrics
+                var bd = claim.brief_data || {};
+                var allDocs = Array.isArray(claim.documents) ? claim.documents : [];
+                var passCount = 0;
+                var valResults = Array.isArray(bd.validation_results) ? bd.validation_results : [];
+                valResults.forEach(function(v) { if (v.status === 'PASS') passCount++; });
+                
+                var ocrQual  = Math.min(100, Math.round(((bd.ocr_summary && bd.ocr_summary.average_confidence) || 0.85) * 100));
+                var extAcc   = Math.min(100, Math.round((bd.extraction_confidence || 0.78) * 100));
+                var docComp  = Math.min(100, Math.round((allDocs.length > 0 ? Math.min(1, allDocs.length / 3) : 0.5) * 100));
+                var crossDoc = Math.min(100, Math.round((bd.consistency_score || 0.72) * 100));
+                var polVal   = Math.min(100, passCount > 0 ? Math.round((passCount / (valResults.length || 1)) * 100) : 60);
+
+                var confBreakdownHtml = '<div class="rp-card" style="margin-bottom:16px;">';
+                confBreakdownHtml += '<h4 style="margin-bottom:12px;font-size:14px;">Confidence Breakdown</h4>';
+                [['OCR Quality', ocrQual], ['Extraction Accuracy', extAcc], ['Document Completeness', docComp], ['Cross-Doc Consistency', crossDoc], ['Policy Validation', polVal]].forEach(function(b) {
+                    confBreakdownHtml += '<div style="margin-bottom:8px;">';
+                    confBreakdownHtml += '<div style="display:flex;justify-content:space-between;font-size:11px;color:#555;margin-bottom:4px;"><span>' + b[0] + '</span><span style="color:var(--primary);font-weight:600;">' + b[1] + '%</span></div>';
+                    confBreakdownHtml += '<div style="height:6px;background:#E2E8F0;border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + b[1] + '%;background:var(--primary);"></div></div>';
+                    confBreakdownHtml += '</div>';
+                });
+                confBreakdownHtml += '</div>';
+
+                html += confBreakdownHtml;
+
+                // Validation card
+                html += '<div class="rp-card" style="margin-bottom:16px;">';
+                html += '<h4 style="margin-bottom:12px;">Validation Rules</h4>';
+                html += '<div style="font-size:13px;">' + valHtml + '</div>';
+                html += '</div>';
+
+                // AI Assessment Details Right Side
+                if (aiBriefHtml && aiBriefHtml.left) {
+                    html += '<h4 style="margin-bottom:12px;font-size:15px;font-family:Poppins,sans-serif;">AI Assessment Details</h4>';
+                    html += aiBriefHtml.left;
+                }
+
+                html += '</div></div>';
+
+                document.getElementById('rpContent').innerHTML = html;
+
+
+            } catch(err) {
+                console.error('openReview error:', err);
+                document.getElementById('rpContent').innerHTML = '<div style="color:red;padding:20px;font-family:monospace;font-size:13px;white-space:pre-wrap;"><strong>Error:</strong> ' + err.message + '\n\n' + (err.stack || '') + '</div>';
+            }
+        }
+
+        function closeReview() {
+            document.getElementById('reviewPanel').classList.remove('active');
+            currentClaimId = null;
+        }
+
+        async function submitDecision(decision) {
+            if(!currentClaimId) return;
+            const comments = document.getElementById('reviewComments').value.trim();
+            
+            if(!comments) {
+                alert('Please provide comments for your decision. This is mandatory.');
+                return;
+            }
+
+            try {
+                await apiCall(`/api/reviewer/claims/${currentClaimId}/decision`, {
+                    method: 'POST',
+                    body: JSON.stringify({ decision, comments })
+                });
+                
+                alert(`Claim ${decision} successfully.`);
+                closeReview();
+                loadDashboard();
+                if(document.getElementById('queueView').classList.contains('active')) loadQueue();
+            } catch(err) {
+                alert("Failed to submit decision: " + err.message);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/';
+        }
+    </script>
+    <script src="/static/i18n.js"></script>
+</body>
+</html>

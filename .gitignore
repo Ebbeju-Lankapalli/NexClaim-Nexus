@@ -1,0 +1,49 @@
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+
+# Python bytecode and tooling
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.pyre/
+.pytype/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Virtual environments
+.venv/
+.venv-*/
+venv/
+env/
+ENV/
+
+# Databases and local runtime data
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.log
+logs/
+
+# Uploaded/private documents — never commit real user data
+app/uploads/claims/**
+app/uploads/medical_documents/**
+app/uploads/policies/**
+app/uploads/policy_repository/**
+!app/uploads/claims/.gitkeep
+!app/uploads/medical_documents/.gitkeep
+!app/uploads/policies/.gitkeep
+!app/uploads/policy_repository/.gitkeep
+
+# OS / IDE files
+.DS_Store
+.idea/
+.vscode/

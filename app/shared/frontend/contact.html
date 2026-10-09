@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | NexClaim</title>
+    <link rel="stylesheet" href="/static/i18n.css">
+    <style>
+        :root {
+            --primary: #4A7C59;
+            --primary-light: #C8D5B9;
+            --primary-dark: #3A6347;
+            --secondary: #F3F7F0;
+            --text: #2C3E50;
+            --text-light: #596E79;
+            --bg: #FAFCFA;
+            --white: #FFFFFF;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.4);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        nav { background: var(--glass-bg); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--glass-border); box-shadow: 0 4px 30px rgba(0,0,0,0.03); }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; }
+        .logo { font-size: 24px; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .nav-links { display: flex; gap: 30px; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--primary); }
+        .btn { padding: 12px 28px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; text-decoration: none; transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(124, 154, 146, 0.3); }
+
+        .page-header { padding: 80px 0 40px; text-align: center; }
+        .page-header h1 { font-size: 48px; color: var(--primary-dark); margin-bottom: 20px; }
+
+        .contact-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 60px; padding: 40px 0 100px; }
+        
+        .info-card { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 40px rgba(74, 124, 89, 0.2); }
+        .info-card h3 { font-size: 24px; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 15px; }
+        .info-item { margin-bottom: 30px; }
+        .info-item h4 { font-size: 14px; opacity: 0.8; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .info-item p { font-size: 18px; }
+        .info-item a { color: white; text-decoration: none; font-weight: 500; }
+        .info-item a:hover { text-decoration: underline; }
+
+        .contact-form { background: var(--surface); border-radius: 20px; padding: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #eee; }
+        .contact-form h2 { font-size: 28px; color: var(--primary-dark); margin-bottom: 30px; }
+        .form-group { margin-bottom: 25px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text); }
+        .form-control { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; background: var(--bg); transition: border-color 0.3s; }
+        .form-control:focus { outline: none; border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1); }
+        textarea.form-control { resize: vertical; min-height: 150px; }
+        
+        #submitMsg { display: none; margin-top: 20px; padding: 15px; border-radius: 8px; font-weight: 500; }
+        .success-msg { background: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
+        .error-msg { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+        .loader { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid white; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; margin-left: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @media(max-width: 900px) { .contact-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                NexClaim
+            </a>
+            <div class="nav-links">
+                <a href="/" data-i18n="nav_home">Home</a>
+                <a href="/partner" data-i18n="nav_partner">Partner With Us</a>
+                <a href="/#reviews" data-i18n="nav_reviews">Reviews</a>
+                <a href="/help" data-i18n="nav_help">Help</a>
+                <a href="/contact" style="color: var(--primary);" data-i18n="nav_contact">Contact</a>
+                
+                <div class="lang-switcher">
+                    <button class="lang-btn" id="currentLangBtn">🌐 EN ▼</button>
+                    <div class="lang-dropdown">
+                        <div class="lang-option" onclick="window.I18N.setLanguage('en')">🇬🇧 English</div>
+                        <div class="lang-option" onclick="window.I18N.setLanguage('hi')">🇮🇳 हिन्दी</div>
+                        <div class="lang-option" onclick="window.I18N.setLanguage('te')">🇮🇳 తెలుగు</div>
+                    </div>
+                </div>
+
+                <button class="theme-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Dark Mode">🌙</button>
+
+                <a href="/" class="btn btn-primary" data-i18n="nav_login">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container page-header">
+        <h1 data-i18n="contact_us">Contact Us</h1>
+    </div>
+
+    <div class="container contact-grid">
+        <div class="info-card">
+            <h3 data-i18n="contact_info_title">Contact Information</h3>
+            <div class="info-item">
+                <h4 data-i18n="contact_company">Company</h4>
+                <p>NexClaim</p>
+            </div>
+            <div class="info-item">
+                <h4 data-i18n="contact_email_title">Email</h4>
+                <p><a href="mailto:customercare@nexclaim.com">customercare@nexclaim.com</a></p>
+            </div>
+            <div class="info-item">
+                <h4 data-i18n="contact_support_title">Support</h4>
+                <p><a href="mailto:support@nexclaim.com">support@nexclaim.com</a></p>
+            </div>
+            <div class="info-item">
+                <h4 data-i18n="contact_partner_title">Partnership Enquiries</h4>
+                <p><a href="mailto:partners@nexclaim.com">partners@nexclaim.com</a></p>
+            </div>
+            <div class="info-item">
+                <h4 data-i18n="contact_office_hours">Office Hours</h4>
+                <p><span data-i18n="contact_days">Monday – Friday</span><br><span data-i18n="contact_time">9:00 AM – 6:00 PM</span></p>
+            </div>
+        </div>
+
+        <div class="contact-form">
+            <h2 data-i18n="send_message">Send us a Message</h2>
+            <form id="contactForm">
+                <div class="form-group">
+                    <label data-i18n="form_name">Full Name</label>
+                    <input type="text" class="form-control" id="contactName" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="form_email">Email Address</label>
+                    <input type="email" class="form-control" id="contactEmail" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="form_subject">Subject</label>
+                    <input type="text" class="form-control" id="contactSubject" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="form_message">Message</label>
+                    <textarea class="form-control" id="contactMessage" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" id="contactSubmit">
+                    <span id="contactBtnText" data-i18n="btn_send_message">Send Message</span> <span class="loader" id="contactLoader" style="display:none;width:12px;height:12px;"></span>
+                </button>
+                <div id="submitMsg"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btnText = document.getElementById('contactBtnText');
+            const btnLoader = document.getElementById('contactLoader');
+            const submitBtn = document.getElementById('contactSubmit');
+            const msgEl = document.getElementById('submitMsg');
+
+            submitBtn.disabled = true;
+            btnText.style.opacity = '0.5';
+            btnLoader.style.display = 'inline-block';
+            msgEl.style.display = 'none';
+            msgEl.className = '';
+
+            const payload = {
+                full_name: document.getElementById('contactName').value,
+                email: document.getElementById('contactEmail').value,
+                subject: document.getElementById('contactSubject').value,
+                message: document.getElementById('contactMessage').value
+            };
+
+            try {
+                const res = await fetch('/api/auth/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                
+                if(res.ok) {
+                    msgEl.textContent = data.message;
+                    msgEl.classList.add('success-msg');
+                    msgEl.style.display = 'block';
+                    document.getElementById('contactForm').reset();
+                } else {
+                    msgEl.textContent = "Error sending message. Please try again.";
+                    msgEl.classList.add('error-msg');
+                    msgEl.style.display = 'block';
+                }
+            } catch(err) {
+                msgEl.textContent = "Network error. Please try again.";
+                msgEl.classList.add('error-msg');
+                msgEl.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                btnText.style.opacity = '1';
+                btnLoader.style.display = 'none';
+            }
+        });
+    </script>
+    <script src="/static/i18n.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const lang = localStorage.getItem('nexclaim_lang') || 'en';
+            if (lang === 'hi') document.getElementById('currentLangBtn').innerHTML='🇮🇳 HI ▼';
+            else if (lang === 'te') document.getElementById('currentLangBtn').innerHTML='🇮🇳 TE ▼';
+            else document.getElementById('currentLangBtn').innerHTML='🇬🇧 EN ▼';
+        });
+    </script>
+</body>
+</html>
